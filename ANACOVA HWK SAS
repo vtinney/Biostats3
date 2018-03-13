@@ -76,7 +76,7 @@ PROC MEANS;
      BY g1 g2 g3 g4;
 
 PROC PLOT;
-     PLOT y*x3=g1 y*x5=g1 y*x3=g2 y*x5=g2 y*x3=g3 y*x5=g3 y*x3=g4 y*x5=g4 z1 z2 z3 z4 h1 h2 h3 h4;
+     PLOT y*x3=g1 y*x5=g1 y*x3=g2 y*x5=g2 y*x3=g3 y*x5=g3 y*x3=g4 y*x5=g4 x3*g1 x3*g2 x3*g4 x5*g1 x5*g2 x5*g3 x5*g4;
 
 PROC REG;
      MODEL y= x3 x5;
@@ -89,14 +89,22 @@ PROC PLOT DATA=new;
      PLOT sturesid*predict /VREF=0;
 PROC UNIVARIATE DATA=new PLOT NORMAL;
      VAR sturesid;
+ods rtf;
+ods listing close;
+ods graphics on;
+
 PROC GLM;
      CLASS g1 g2 g3 g4;
      MODEL y=x3 x5 g1 g2 g3 g4 /SOLUTION;
      LSMEANS g1 g2 g3 g4 /STDERR TDIFF;
+ods graphics off;
+ods rtf close;
+ods listing;
+quit;
 RUN;
 
 PROC REG data=pain;
-     MODEL y=x3 x5 g1 g2 g3 g4 /VIF;
+     MODEL y=x3 x5 g1 g2 g3 g4 /VIF COLLIN;
 RUN;
 PROC REG;
      MODEL y=x3 x5 g1 g2 g3 g4 /R INFLUENCE;
@@ -105,11 +113,6 @@ PROC REG;
 PROC CONTENTS DATA=b;
 RUN;
 
-PROC GPLOT;
-PLOT COOKSD*x1=g1 g2 g3 g4;
-SYMBOL1 V='1' C=BLACK;
-SYMBOL2 V='2' C=BLACK;
-RUN;
 PROC GPLOT;
 PLOT (StudentResidual RStudent DFFITS)*PredictedValue /VREF=0;
 PLOT (DFB_Intercept DFB_x3 DFB_x5 DFB_g1 DFB_g2 DFB_g3 DFB_g4)*OBSERVATION;
