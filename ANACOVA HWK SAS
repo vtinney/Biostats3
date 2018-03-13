@@ -1,0 +1,116 @@
+
+
+
+options nocenter nodate  linesize=120 pagesize=67 pageno=1;
+
+DATA pain;
+    INFILE 'C:\Users\Veronica Tinney\Desktop\Biostat 3\ANACOVA\PAIN.DAT';
+	INPUT x1 x2 $ x3-x5 y x7-x13;
+
+	IF (x8=1) THEN g1 = 1;
+	ELSE g1 = 0;
+
+	IF (x8=2) THEN g2 = 1;
+	ELSE g2 = 0;
+
+	IF (x8=3) THEN g3 = 1;
+	ELSE g3 = 0;
+
+	IF (x8=4) THEN g4 = 1;
+	ELSE g4 = 0;
+
+     z1=x3*g1;
+	 z2=x3*g2;
+	 z3=x3*g3;
+	 z4=x3*g4;
+
+	 h1=x5*g1;
+	 h2=x5*g2;
+	 h3=x5*g3;
+	 h4=x5*g4;
+     
+LABEL x1='Patient'
+     x2='Surgeon date'
+     x3='Age in yrs'
+     x4='Sex'
+     x5='height'
+     y='weight'
+     x7='Surg duration'
+     x8='group'
+     x9='total volume'
+     x10='R.knee pain'
+     x11='R.back pain'
+     x12='H.knee pain?'
+     x13='H.back pain'
+	 g1='group1'
+	 g2='group2'
+	 g3='group3'
+	 g4='group4'
+	 z1='age&group1'
+	 z2='age&group2'
+	 z3='age&group3'
+	 z4='age&group4'
+	 z5='age&group5'
+	 h1='height&group1'
+	 h2='height&group2'
+	 h3='height&group3'
+	 h4='height&group4';
+
+RUN;
+
+PROC REG;
+     MODEL y=g1 g2 g3 g4 x3 x5 z1 z2 z3 z4 h1 h2 h3 h4;
+RUN;
+
+*y = weight (y)
+*x = weight among five groups g1 g2 g3 g4
+*z = adjusting FOR age and height x3 and x5;
+
+
+PROC MEANS;
+     VAR y x5 x3;
+PROC SORT;
+     BY g1 g2 g3 g4;
+PROC MEANS;
+     VAR y x3 x5;
+     BY g1 g2 g3 g4;
+
+PROC PLOT;
+     PLOT y*x3=g1 y*x5=g1 y*x3=g2 y*x5=g2 y*x3=g3 y*x5=g3 y*x3=g4 y*x5=g4 z1 z2 z3 z4 h1 h2 h3 h4;
+
+PROC REG;
+     MODEL y= x3 x5;
+PROC REG CORR SIMPLE;
+     MODEL y=x3 x5 g1 g2 g3 g4  /R;
+     OUTPUT OUT=new
+           P=predict R=residual STUDENT=sturesid
+;
+PROC PLOT DATA=new;
+     PLOT sturesid*predict /VREF=0;
+PROC UNIVARIATE DATA=new PLOT NORMAL;
+     VAR sturesid;
+PROC GLM;
+     CLASS g1 g2 g3 g4;
+     MODEL y=x3 x5 g1 g2 g3 g4 /SOLUTION;
+     LSMEANS g1 g2 g3 g4 /STDERR TDIFF;
+RUN;
+
+PROC REG data=pain;
+     MODEL y=x3 x5 g1 g2 g3 g4 /VIF;
+RUN;
+PROC REG;
+     MODEL y=x3 x5 g1 g2 g3 g4 /R INFLUENCE;
+     ID x1 g1 g2 g3 g4;
+	 ODS OUTPUT OUTPUTSTATISTICS=b;
+PROC CONTENTS DATA=b;
+RUN;
+
+PROC GPLOT;
+PLOT COOKSD*x1=g1 g2 g3 g4;
+SYMBOL1 V='1' C=BLACK;
+SYMBOL2 V='2' C=BLACK;
+RUN;
+PROC GPLOT;
+PLOT (StudentResidual RStudent DFFITS)*PredictedValue /VREF=0;
+PLOT (DFB_Intercept DFB_x3 DFB_x5 DFB_g1 DFB_g2 DFB_g3 DFB_g4)*OBSERVATION;
+RUN;
