@@ -1,0 +1,67 @@
+dm 'log;clear';
+dm 'out;clear';
+OPTIONS NOCENTER NODATE pageno=1 PS=51 LS=134;
+
+PROC IMPORT OUT= WORK.tab1 
+            DATAFILE= "C:\Users\Veronica Tinney\Desktop\Biostat 3\PR\KC24ex1.xls" 
+            DBMS=EXCEL2000 REPLACE;
+     GETNAMES=YES;
+RUN;
+
+data d1;
+	set WORK.tab1;
+
+run;
+
+proc genmod data=d1;
+      class city ageg;
+      model case/pop = city ageg / dist=poisson
+link=log
+type3;
+
+contrast 'city 2-1,ageg=1' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=2' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=3' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=4' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=5' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=6' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=7' city -1 1 ageg 0 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=8' city -1 1 ageg 0 0 0 0 0 0 0 0;
+
+estimate 'city 2-1,ageg=1' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=2' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=3' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=4' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=5' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=6' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=7' city -1 1 ageg 0 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=8' city -1 1 ageg 0 0 0 0 0 0 0 0;
+
+run;
+
+
+proc genmod data=d1;
+      class city ageg;
+      model case/pop = city ageg city*ageg / dist=poisson
+link=log
+type3;
+
+contrast 'city 2-1,ageg=1' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg -1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=2' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 -1 0 0 0 0 0 0  0 1 0 0 0 0 0 0;
+contrast 'city 2-1,ageg=3' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 -1 0 0 0 0 0  0 0 1 0 0 0 0 0;
+contrast 'city 2-1,ageg=4' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 -1 0 0 0 0  0 0 0 1 0 0 0 0;
+contrast 'city 2-1,ageg=5' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 -1 0 0 0  0 0 0 0 1 0 0 0;
+contrast 'city 2-1,ageg=6' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 0 -1 0 0  0 0 0 0 0 1 0 0;
+contrast 'city 2-1,ageg=7' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 0 0 -1 0  0 0 0 0 0 0 1 0;
+contrast 'city 2-1,ageg=8' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 0 0 0 -1  0 0 0 0 0 0 0 1;
+
+estimate 'city 2-1,ageg=1' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg -1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=2' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 -1 0 0 0 0 0 0  0 1 0 0 0 0 0 0;
+estimate 'city 2-1,ageg=3' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 -1 0 0 0 0 0  0 0 1 0 0 0 0 0;
+estimate 'city 2-1,ageg=4' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 -1 0 0 0 0  0 0 0 1 0 0 0 0;
+estimate 'city 2-1,ageg=5' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 -1 0 0 0  0 0 0 0 1 0 0 0;
+estimate 'city 2-1,ageg=6' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 0 -1 0 0  0 0 0 0 0 1 0 0;
+estimate 'city 2-1,ageg=7' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 0 0 -1 0  0 0 0 0 0 0 1 0;
+estimate 'city 2-1,ageg=8' city -1 1 ageg 0 0 0 0 0 0 0 0 city*ageg 0 0 0 0 0 0 0 -1  0 0 0 0 0 0 0 1;
+
+run;
